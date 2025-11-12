@@ -32,6 +32,10 @@ let brick = {
     offsetLeft: 30
 }
 
+let score = {
+    last: 0
+}
+
 var bricks = [];
 for (c = 0; c < brick.columns; c++) {
     bricks[c] = [];
@@ -76,6 +80,12 @@ function drawBricks() {
     }
 }
 
+function drawScore() {
+    ctx.font = "16px Arial";
+    ctx.fillStyle = "#0f8d0cff"
+    ctx.fillText("Score: " + score.last, 8, 20);
+}
+
 //Aqui actualizamos los valores de los objetos
 function updateFrames() {
     //Colision con Paredes
@@ -90,7 +100,7 @@ function updateFrames() {
         if (ball.x > paddle.position && ball.x < paddle.position + paddle.w) {
             ball.dy = -ball.dy;
         } else {
-            alert("GAME OVER");
+            alert("GAME OVER, SCORE: " + score.last);
             document.location.reload();
         }
     }
@@ -133,6 +143,11 @@ function brickCollision() {
                 if (ball.x > b.x && ball.x < b.x + brick.width && ball.y > b.y && ball.y < b.y + brick.height) {
                     ball.dy = -ball.dy;
                     b.status = 0;
+                    score.last++;
+                    if (score.last == brick.columns * brick.rows) {
+                        alert("YOU WIN, CONGRATS");
+                        document.location.reload();
+                    }
                 }
             }
         }
@@ -150,6 +165,7 @@ function gameLoop() {
     drawBricks();
     drawPaddle();
     drawBall();
+    drawScore();
     
     requestAnimationFrame(gameLoop);
 }
