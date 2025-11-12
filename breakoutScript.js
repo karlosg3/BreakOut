@@ -8,7 +8,7 @@ document.addEventListener('keyup', keyUpHandler, false);
 // En esta área se definen los objetos
 let ball = {
     x: canvas.width / 2,
-    y: canvas.height -30,
+    y: canvas.height - 30,
     radius: 10,
     dx: 4,
     dy: -4
@@ -22,13 +22,33 @@ let paddle = {
     leftPressed: false
 }
 
+let brick = {
+    rows: 3,
+    columns: 5,
+    width: 75,
+    height: 20,
+    padding: 10,
+    offsetTop: 30,
+    offsetLeft: 30
+}
+
+var bricks = [];
+for (c = 0; c < brick.columns; c++) {
+    bricks[c] = [];
+    for (r = 0; r < brick.rows; r++) {
+        let brickX = (c * (brick.width + brick.padding)) + brick.offsetLeft;
+        let brickY = (r * (brick.height + brick.padding)) + brick.offsetTop;
+        bricks[c][r] = { x: brickX, y: brickY };
+    }
+}
+
 //Solucion a paradoja temporal
-paddle.position = (canvas.width - paddle.w) /2;
+paddle.position = (canvas.width - paddle.w) / 2;
 
 // En esta área se dibujan los objetos
 function drawBall() {
     ctx.beginPath();
-    ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI *2);
+    ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
     ctx.fillStyle = "#0095DD";
     ctx.fill();
     ctx.closePath()
@@ -36,27 +56,48 @@ function drawBall() {
 
 function drawPaddle() {
     ctx.beginPath();
-    ctx.rect(paddle.position, canvas.height-paddle.h, paddle.w, paddle.h);
+    ctx.rect(paddle.position, canvas.height - paddle.h, paddle.w, paddle.h);
     ctx.fillStyle = "#0095DD";
     ctx.fill();
+}
+
+function drawBricks() {
+    for (c = 0; c < brick.columns; c++) {
+        for (r = 0; r < brick.rows; r++) {
+            let b = bricks[c][r];
+            ctx.beginPath();
+            ctx.rect(b.x, b.y, brick.width, brick.height);
+            ctx.fillStyle = "#dd0000ff"
+            ctx.fill();
+            ctx.closePath();
+        }
+    }
 }
 
 //Aqui actualizamos los valores de los objetos
 function updateFrames() {
     //Colision con Paredes
-    if (ball.x + ball.dx > canvas.width || ball.x + ball.dx < 0) {
+    if (ball.x + ball.dx > canvas.width - ball.radius || ball.x + ball.dx < ball.radius) {
         ball.dx = -ball.dx;
     }
 
-    if (ball.y + ball.dy > canvas.height || ball.y + ball.dy < 0){
+    //Colision para perder
+    if (ball.y + ball.dy < ball.radius) {
         ball.dy = -ball.dy;
+    } else if (ball.y + ball.dy > canvas.height - ball.radius) {
+        if (ball.x > paddle.position && ball.x < paddle.position + paddle.w) {
+            ball.dy = -ball.dy;
+        } else {
+            alert("GAME OVER");
+            document.location.reload();
+        }
     }
 
     //Movimiento del Paddle
     //Incluye colision con las paredes
-    if (paddle.rightPressed && paddle.position < canvas.width - paddle.w){
+    if (paddle.rightPressed && paddle.position < canvas.width - paddle.w) {
         paddle.position += 7;
-    } else if (paddle.leftPressed && paddle.position > 0){
+    } else if (paddle.leftPressed && paddle.position > 0) {
         paddle.position -= 7;
     }
 
@@ -67,7 +108,7 @@ function updateFrames() {
 
 // Aqui se encuantran las funciones de controles
 function keyDownHandler(e) {
-    if(e.keyCode == 39) {
+    if (e.keyCode == 39) {
         paddle.rightPressed = true;
     } else if (e.keyCode == 37) {
         paddle.leftPressed = true;
@@ -75,7 +116,7 @@ function keyDownHandler(e) {
 }
 
 function keyUpHandler(e) {
-    if(e.keyCode == 39) {
+    if (e.keyCode == 39) {
         paddle.rightPressed = false;
     } else if (e.keyCode == 37) {
         paddle.leftPressed = false;
@@ -87,6 +128,7 @@ function gameLoop() {
     //Limpia el canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     updateFrames();
+    drawBricks();
     drawPaddle();
     drawBall();
     requestAnimationFrame(gameLoop);
