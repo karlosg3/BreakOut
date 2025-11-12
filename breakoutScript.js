@@ -38,7 +38,7 @@ for (c = 0; c < brick.columns; c++) {
     for (r = 0; r < brick.rows; r++) {
         let brickX = (c * (brick.width + brick.padding)) + brick.offsetLeft;
         let brickY = (r * (brick.height + brick.padding)) + brick.offsetTop;
-        bricks[c][r] = { x: brickX, y: brickY };
+        bricks[c][r] = { x: brickX, y: brickY, status: 1 };
     }
 }
 
@@ -64,12 +64,14 @@ function drawPaddle() {
 function drawBricks() {
     for (c = 0; c < brick.columns; c++) {
         for (r = 0; r < brick.rows; r++) {
-            let b = bricks[c][r];
-            ctx.beginPath();
-            ctx.rect(b.x, b.y, brick.width, brick.height);
-            ctx.fillStyle = "#dd0000ff"
-            ctx.fill();
-            ctx.closePath();
+            if (bricks[c][r].status == 1) {
+                let b = bricks[c][r];
+                ctx.beginPath();
+                ctx.rect(b.x, b.y, brick.width, brick.height);
+                ctx.fillStyle = "#dd0000ff"
+                ctx.fill();
+                ctx.closePath();
+            }
         }
     }
 }
@@ -123,14 +125,32 @@ function keyUpHandler(e) {
     }
 }
 
+function brickCollision() {
+    for (c = 0 ; c < brick.columns; c++) {
+        for (r = 0; r < brick.rows; r++) {
+            var b = bricks[c][r];
+            if (b.status == 1) {
+                if (ball.x > b.x && ball.x < b.x + brick.width && ball.y > b.y && ball.y < b.y + brick.height) {
+                    ball.dy = -ball.dy;
+                    b.status = 0;
+                }
+            }
+        }
+    }
+}
+
 // Aquí se reproduce toa la sentencia del juego
 function gameLoop() {
     //Limpia el canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    //Actualización y Colisiones
     updateFrames();
+    brickCollision();
+    //Dibujo de los elementos
     drawBricks();
     drawPaddle();
     drawBall();
+    
     requestAnimationFrame(gameLoop);
 }
 
