@@ -1,8 +1,10 @@
 const canvas = document.getElementById('breakoutCanvas');
 const ctx = canvas.getContext('2d');
 
+//Listeners para controles del paddle
 document.addEventListener('keydown', keyDownHandler, false);
 document.addEventListener('keyup', keyUpHandler, false);
+document.addEventListener('mousemove', mouseMoveHandler, false);
 
 
 // En esta área se definen los objetos
@@ -132,6 +134,13 @@ function keyUpHandler(e) {
         paddle.rightPressed = false;
     } else if (e.keyCode == 37) {
         paddle.leftPressed = false;
+    }
+}
+
+function mouseMoveHandler(e) {
+    var relativeX = e.clientX - canvas.offsetLeft;
+    if (relativeX > 0 && relativeX < canvas.width) {
+        paddle.position = relativeX - paddle.w /2;
     }
 }
 
