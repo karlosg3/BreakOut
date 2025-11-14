@@ -1,6 +1,11 @@
 const canvas = document.getElementById('breakoutCanvas');
 const ctx = canvas.getContext('2d');
 
+//Optimización de frames
+let lastTime = 0;
+const TARGET_FPS = 60;
+const TARGET_FRAMETIME_MS = 1000 / TARGET_FPS;
+
 //Listeners para controles del paddle
 document.addEventListener('keydown', keyDownHandler, false);
 document.addEventListener('keyup', keyUpHandler, false);
@@ -100,7 +105,7 @@ function drawLives() {
 }
 
 //Aqui actualizamos los valores de los objetos
-function updateFrames() {
+function updateFrames(dt) {
     //Colision con Paredes
     if (ball.x + ball.dx > canvas.width - ball.radius || ball.x + ball.dx < ball.radius) {
         ball.dx = -ball.dx;
@@ -130,14 +135,14 @@ function updateFrames() {
     //Movimiento del Paddle
     //Incluye colision con las paredes
     if (paddle.rightPressed && paddle.position < canvas.width - paddle.w) {
-        paddle.position += 7;
+        paddle.position += 7 * dt;
     } else if (paddle.leftPressed && paddle.position > 0) {
-        paddle.position -= 7;
+        paddle.position -= 7 * dt;
     }
 
     // Movimiento de la Pelota
-    ball.x += ball.dx;
-    ball.y += ball.dy;
+    ball.x += ball.dx * dt;
+    ball.y += ball.dy * dt;
 }
 
 // Aqui se encuantran las funciones de controles
@@ -184,11 +189,22 @@ function brickCollision() {
 }
 
 // Aquí se reproduce toa la sentencia del juego
-function gameLoop() {
+function gameLoop(currentTime) {
+    requestAnimationFrame(gameLoop);
+    //Optimizacion de frames
+    if (!lastTime || currentTime === undefined) {
+        lastTime = currentTime;
+        return;
+    }
+
+    const deltaTime_ms = currentTime - lastTime;
+    lastTime = currentTime;
+    const deltaMultiplier = deltaTime_ms / TARGET_FRAMETIME_MS;
+
     //Limpia el canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     //Actualización y Colisiones
-    updateFrames();
+    updateFrames(deltaMultiplier);
     brickCollision();
     //Dibujo de los elementos
     drawLives();
@@ -197,7 +213,7 @@ function gameLoop() {
     drawBall();
     drawScore();
     
-    requestAnimationFrame(gameLoop);
+    
 }
 
 gameLoop();
