@@ -6,7 +6,7 @@ This Web Clone is being developed using web technologies such as HTML5, CSS and 
 
 ---
 
-## 📜 Acknolewdgements
+## 📜 Acknolewdgments
 
 This project is based on and inspired by the [Gamedev-Canvas-workshop](https://developer.mozilla.org/en-US/docs/MDN/Writing_guidelines#Copyrights_and_licenses) by Andrzej Mazur and Mozilla Contributors.
 
